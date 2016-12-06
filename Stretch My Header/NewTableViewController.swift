@@ -9,10 +9,13 @@
 import UIKit
 
 private let kTableHeaderHeight: CGFloat = 250.0
+private let kTableHeaderCutAway: CGFloat = 80.0
 
 class NewTableViewController: UITableViewController {
     
+    @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var headerView: UIView!
+    var headerMaskLayer: CAShapeLayer!
     
     let items = [
         NewsItem(category: .World, summary: "Climate change protests, divestments meet fossil fuels realities"),
@@ -36,8 +39,38 @@ class NewTableViewController: UITableViewController {
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 140
         
+        headerView = tableView.tableHeaderView
+        
         tableView.tableHeaderView = nil
-        var headerView: UIView!
+        tableView .addSubview(headerView)
+        tableView.contentInset = UIEdgeInsetsMake(kTableHeaderHeight, 0, 0, 0)
+        tableView.contentOffset = CGPoint(x: 0, y: -kTableHeaderHeight)
+        
+        headerMaskLayer = CAShapeLayer()
+        headerMaskLayer.fillColor = UIColor.black.cgColor
+        headerView.layer.mask = headerMaskLayer
+        updateHeaderView()
+        
+        let formatter = DateFormatter()
+        formatter.dateStyle = DateFormatter.Style.long
+        let dateString = formatter.string(from: NSDate.init() as Date)
+        dateLabel.text = dateString
+    }
+    
+    func updateHeaderView() {
+        var headerRect = CGRect(x: 0, y: -kTableHeaderHeight, width: tableView.bounds.width, height: kTableHeaderHeight)
+        if tableView.contentOffset.y < -kTableHeaderHeight {
+            headerRect.origin.y = tableView.contentOffset.y
+            headerRect.size.height = -tableView.contentOffset.y
+        }
+        headerView.frame = headerRect
+        
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: headerRect.width, y: 0))
+        path.addLine(to: CGPoint(x: headerRect.width, y: headerRect.height))
+        path.addLine(to: CGPoint(x: 0, y: headerRect.height - kTableHeaderCutAway))
+        headerMaskLayer?.path = path.cgPath
         
     }
 
@@ -62,61 +95,11 @@ class NewTableViewController: UITableViewController {
         return cell
     }
     
-
     
-    // MARK: Table view delegate
+    // MARK: Scroll
     
-//    override func  tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return UITableViewAutomaticDimension
-//    }
-//    
-//    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return UITableViewAutomaticDimension
-//    }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateHeaderView()
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
