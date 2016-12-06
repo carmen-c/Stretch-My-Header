@@ -17,6 +17,7 @@ class NewTableViewController: UITableViewController {
     @IBOutlet weak var headerView: UIView!
     var headerMaskLayer: CAShapeLayer!
     
+    
     let items = [
         NewsItem(category: .World, summary: "Climate change protests, divestments meet fossil fuels realities"),
         NewsItem(category: .Europe, summary: "Scotland's 'Yes' leader says independence vote is 'once in a lifetime'"),
